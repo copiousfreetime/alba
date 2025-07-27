@@ -248,6 +248,24 @@ class ConditionalAttributesTest < Minitest::Test
     )
   end
 
+  class UserResource16 < UserResource
+    attribute :admin_links, if: proc { |_user, _name| !!params[:should_have_admin_links] } do |object|
+      {
+        edit: "#{params[:edit_base]}/#{object.id}",
+        preview: "#{params[:preview_base]}/#{object.id}",
+      }
+    end
+  end
+
+  def test_conditional_attributes_with_params_in_if_with_block_parameters_and_block
+    params = {should_have_admin_links: true, edit_base: 'http://admin.example.com', preview_base: 'http://preview.example.com'}
+    assert_equal(
+      '{"id":1,"admin_links":{"edit":"http://admin.example.com/1","preview":"http://preview.example.com/1"},"name":"Masafumi OKURA"}',
+      UserResource16.new(@user, params: params).serialize
+    )
+  end
+
+
   class Foo
     attr_reader :id, :name
 
